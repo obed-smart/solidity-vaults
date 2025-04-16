@@ -7,6 +7,36 @@
 		"abi": [
 			{
 				"inputs": [],
+				"stateMutability": "nonpayable",
+				"type": "constructor"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "id",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "string",
+						"name": "name",
+						"type": "string"
+					},
+					{
+						"indexed": false,
+						"internalType": "string",
+						"name": "class",
+						"type": "string"
+					}
+				],
+				"name": "RegisteredStudent",
+				"type": "event"
+			},
+			{
+				"inputs": [],
 				"name": "getAllStudentRecord",
 				"outputs": [
 					{
@@ -22,9 +52,14 @@
 								"type": "uint256"
 							},
 							{
-								"internalType": "uint256",
+								"internalType": "string",
 								"name": "class",
-								"type": "uint256"
+								"type": "string"
+							},
+							{
+								"internalType": "bytes32",
+								"name": "hashClass",
+								"type": "bytes32"
 							}
 						],
 						"internalType": "struct SchoolRegister.Register[]",
@@ -38,9 +73,9 @@
 			{
 				"inputs": [
 					{
-						"internalType": "uint256",
+						"internalType": "string",
 						"name": "_class",
-						"type": "uint256"
+						"type": "string"
 					}
 				],
 				"name": "getStudentByClass",
@@ -58,9 +93,14 @@
 								"type": "uint256"
 							},
 							{
-								"internalType": "uint256",
+								"internalType": "string",
 								"name": "class",
-								"type": "uint256"
+								"type": "string"
+							},
+							{
+								"internalType": "bytes32",
+								"name": "hashClass",
+								"type": "bytes32"
 							}
 						],
 						"internalType": "struct SchoolRegister.Register[]",
@@ -94,9 +134,14 @@
 								"type": "uint256"
 							},
 							{
-								"internalType": "uint256",
+								"internalType": "string",
 								"name": "class",
-								"type": "uint256"
+								"type": "string"
+							},
+							{
+								"internalType": "bytes32",
+								"name": "hashClass",
+								"type": "bytes32"
 							}
 						],
 						"internalType": "struct SchoolRegister.Register",
@@ -115,14 +160,9 @@
 						"type": "string"
 					},
 					{
-						"internalType": "uint256",
-						"name": "_id",
-						"type": "uint256"
-					},
-					{
-						"internalType": "uint256",
+						"internalType": "string",
 						"name": "_class",
-						"type": "uint256"
+						"type": "string"
 					}
 				],
 				"name": "registerStudent",
@@ -159,11 +199,11 @@
 	},
 	"sources": {
 		"school-registery/register.sol": {
-			"keccak256": "0x8eb89aa404139f0256744bddc7e5c6c2a23a4f8966dcc2254a2ab95ca0d9d492",
+			"keccak256": "0x698f2ad2a1df843974973a045247c349ced2cf88e24959a8e0ff830bd1a817d0",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://21c42817cdeb3e4265b5bf7d078fb4558e37273738878e5bc67b694e6753299c",
-				"dweb:/ipfs/QmVmr4k9As5o6z4nA9MP3oyC25RDS9rYFG6TTMqRkRs7Xh"
+				"bzz-raw://90b5bbe532fa4373d7248c86c48a22e746ed89a6dc20dfe21d408ecdfb457024",
+				"dweb:/ipfs/QmUxKmX6Zg1V5PBydTLbgLviwAyiJJjTfLxBj1y2XD3pNW"
 			]
 		}
 	},
