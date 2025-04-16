@@ -10,6 +10,7 @@ contract SchoolRegister {
     }
     address private owner;
     mapping(address => Register[]) private schoolrecord;
+    mapping(address => mapping(string => uint256)) private schoolclassCount;
 
     constructor() {
         owner = msg.sender;
@@ -22,7 +23,11 @@ contract SchoolRegister {
         _;
     }
 
-    uint256 studentIdCount = 1;
+    /*
+     * function to convert a string to bytes32
+     * @param(_str) - a string value to convert to bytes32
+     * @returns(bytes32) - a converted bytes32 value
+     */
 
     function hashString(string memory _str) private pure returns (bytes32) {
         return keccak256(abi.encodePacked(_str));
@@ -34,6 +39,8 @@ contract SchoolRegister {
     {
         // require(msg.sender == address(0), "only school can register new studen");
 
+        uint256 studentIdCount = ++schoolclassCount[msg.sender][_class];
+
         Register memory studentinfo = Register({
             name: _name,
             id: studentIdCount,
@@ -41,7 +48,6 @@ contract SchoolRegister {
             hashClass: hashString(_class)
         });
 
-        studentIdCount++;
         schoolrecord[msg.sender].push(studentinfo);
         emit RegisteredStudent(studentIdCount, _name, _class);
     }
@@ -55,7 +61,7 @@ contract SchoolRegister {
         return schoolrecord[msg.sender];
     }
 
-    function getstudentRecordById(uint256 _id)
+    function getstudentRecordById(uint256 _id, string calldata _class)
         public
         view
         returns (Register memory)
@@ -63,10 +69,13 @@ contract SchoolRegister {
         Register[] memory records = schoolrecord[msg.sender];
 
         for (uint256 i = 0; i < records.length; i++) {
-            if (records[i].id == _id) return records[i];
+            if (
+                records[i].id == _id &&
+                records[i].hashClass == hashString(_class)
+            ) return records[i];
         }
 
-        revert("no student found");
+        revert("student record not found ID");
     }
 
     /*
@@ -77,7 +86,7 @@ contract SchoolRegister {
      * for each students that match the class store them in the new arrya
      */
 
-    function getStudentByClass(string calldata _class)
+    function getStudentsByClass(string calldata _class)
         public
         view
         returns (Register[] memory)
