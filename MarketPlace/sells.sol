@@ -34,12 +34,17 @@ contract TokenMarketPlace is Ownable, ReentrancyGuard {
         uint256 pricePerToken
     );
 
-    // event Li()
+    event TokenAmountUpdated(
+        uint256 indexed listingId,
+        address _tokenAddress,
+        uint256 amountUpdated,
+        uint256 _newTokenPrice
+    );
 
     constructor(uint256 _feePercentage, address _feeCollector)
         Ownable(msg.sender)
     {
-        require(_feePercentage <= 1000, "Fee must not exceed 10%");
+        require(_feePercentage <= 10, "Fee must not exceed 10%");
         require(_feeCollector != address(0), "Invalid fee recipient address");
 
         feePercent = _feePercentage;
