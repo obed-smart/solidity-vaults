@@ -47,7 +47,7 @@ contract TokenMarketPlace is Ownable, ReentrancyGuard {
     }
 
     function _generatekeyId(address token, address seller)
-        internal
+        public
         pure
         returns (bytes32)
     {
@@ -67,62 +67,68 @@ contract TokenMarketPlace is Ownable, ReentrancyGuard {
         uint256 _amount,
         uint256 _pricePerToken
     ) external nonReentrant {
-        // IERC20 token = IERC20(_tokenAddress);
-        // require(_tokenAddress != address(0), "Invalid token");
-        // require(_amount > 0, "Token amount can not be zero");
-        // require(_pricePerToken > 0, "Token price can not be zero");
+        require(_tokenAddress != address(0), "Invalid token");
+        require(_amount > 0, "Token amount can not be zero");
+        require(_pricePerToken > 0, "Token price can not be zero");
 
-        // require(
-        //     chekApproveAllowance(_tokenAddress, msg.sender) > 0,
-        //     "You must approve this contract to use your tokens"
-        // );
+        require(
+            chekApproveAllowance(_tokenAddress, msg.sender) > 0,
+            "You must approve this contract to use your tokens"
+        );
 
-        // require(
-        //     chekApproveAllowance(_tokenAddress, msg.sender) >= _amount,
-        //     "Insufficient tokens"
-        // );
+        // check if the market place have enough approved token to list
+        require(
+            chekApproveAllowance(_tokenAddress, msg.sender) >= _amount,
+            "Insufficient tokens"
+        );
 
-        // require(
-        //     token.transferFrom(msg.sender, address(this), _amount),
-        //     "Unable to transfer tokens"
-        // );
+        // declare a token instance
+        IERC20 token = IERC20(_tokenAddress);
+
+        require(
+            token.transferFrom(msg.sender, address(this), _amount),
+            "Error while transferring tokens"
+        );
 
         bytes32 keyId = _generatekeyId(_tokenAddress, msg.sender);
 
-        // if (listingKey[keyId] == 0) {
-        //     listings[nextListingId] = Listing({
-        //         seller: msg.sender,
-        //         tokenName: IERC20Metadata(_tokenAddress).name(),
-        //         tokenAddress: _tokenAddress,
-        //         amount: _amount,
-        //         pricePerToken: _pricePerToken,
-        //         active: true
-        //     });
+        uint256 fee = (feePercent * _amount) / 100;
 
-        //     listingKey[keyId] = nextListingId;
-        //     nextListingId++;
-        // } else {
-        //     uint256 listingId = listingKey[keyId];
-        //     // require(listings[listingId].active, "");
+        if (listingKey[keyId] == 0) {
+            listings[nextListingId] = Listing({
+                seller: msg.sender,
+                tokenName: IERC20Metadata(_tokenAddress).name(),
+                tokenAddress: _tokenAddress,
+                amount: _amount - fee,
+                pricePerToken: _pricePerToken,
+                active: true
+            });
+            require(
+                token.transferFrom(msg.sender, feeCollector, fee),
+                "Error while transferring listining fee"
+            );
 
-        //     listings[listingId].amount += _amount;
-        //     listings[listingId].pricePerToken = _pricePerToken;
-        // }
+            listingKey[keyId] = nextListingId;
+            nextListingId++;
+        } else {
+            uint256 listingId = listingKey[keyId];
+            require(listings[listingId].active, "this token is not active");
 
-        listings[nextListingId] = Listing({
-            seller: msg.sender,
-            tokenName: IERC20Metadata(_tokenAddress).name(),
-            tokenAddress: _tokenAddress,
-            amount: _amount,
-            pricePerToken: _pricePerToken,
-            active: true
-        });
+            listings[listingId].amount += _amount - fee;
+            listings[listingId].pricePerToken = _pricePerToken;
 
-        listingKey[keyId] = nextListingId;
-        nextListingId++;
+            require(
+                token.transferFrom(msg.sender, feeCollector, fee),
+                "Error while transferring listining fee"
+            );
+        }
     }
 
-    //   function contractTokenBalance() external view returns (uint256) {
-    //     return token.balanceOf(address(this));
-    // }
+    function tokenBalanceByAddress(address _tokenAddress, address _account)
+        public
+        view
+        returns (uint256)
+    {
+        return IERC20(_tokenAddress).balanceOf(_account);
+    }
 }
