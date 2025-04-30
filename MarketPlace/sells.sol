@@ -24,6 +24,7 @@ contract TokenMarketPlace is Ownable, ReentrancyGuard {
 
     // reverse mapping that is linking to the tokens uniqu number identifier to a hash for easy lookup
     mapping(bytes32 => uint256) public listingKey;
+    mapping(address => address) sellerAddress;
     uint256 nextListingId = 1;
 
     event TokenListed(
@@ -67,14 +68,32 @@ contract TokenMarketPlace is Ownable, ReentrancyGuard {
         return IERC20(_tokenAddress).allowance(user, address(this));
     }
 
+    // calculate an charge fee for listing token
+    function chargeFee(uint256 _amount, uint256 _pricePerTokenInEth) internal {
+        uint256 fee = (feePercent * (_amount * _pricePerTokenInEth)) /
+            100;
+
+        require(msg.value >= fee, "Insufficient ETH for fee");
+
+        // send the fee to the fee collector
+        (bool sent, ) = feeCollector.call{value: fee}("");
+        require(sent, "Error while sending listining fee");
+
+        // check if the sent Eth is greater han the fees
+        if (msg.value > fee) {
+            // send back the extral fees to the sender
+            payable(msg.sender).transfer(msg.value - fee);
+        }
+    }
+
     function creatListing(
         address _tokenAddress,
         uint256 _amount,
-        uint256 _pricePerToken
-    ) external nonReentrant {
+        uint256 _pricePerTokenInEth
+    ) external nonReentrant payable {
         require(_tokenAddress != address(0), "Invalid token");
         require(_amount > 0, "Token amount can not be zero");
-        require(_pricePerToken > 0, "Token price can not be zero");
+        require(_pricePerTokenInEth > 0, "Token price can not be zero");
 
         require(
             chekApproveAllowance(_tokenAddress, msg.sender) > 0,
@@ -89,13 +108,13 @@ contract TokenMarketPlace is Ownable, ReentrancyGuard {
 
         // declare a token instance
         IERC20 token = IERC20(_tokenAddress);
-        uint256 fee = (feePercent * _amount) / 100;
 
         require(
-            token.transferFrom(msg.sender, address(this), _amount - fee),
+            token.transferFrom(msg.sender, address(this), _amount),
             "Error while transferring tokens"
         );
 
+        // create a hash key for the token
         bytes32 keyId = _generatekeyId(_tokenAddress, msg.sender);
 
         if (listingKey[keyId] == 0) {
@@ -103,14 +122,10 @@ contract TokenMarketPlace is Ownable, ReentrancyGuard {
                 seller: msg.sender,
                 tokenName: IERC20Metadata(_tokenAddress).name(),
                 tokenAddress: _tokenAddress,
-                amount: _amount - fee,
-                pricePerToken: _pricePerToken,
+                amount: _amount,
+                pricePerToken: _pricePerTokenInEth * 1 ether,
                 active: true
             });
-            require(
-                token.transferFrom(msg.sender, feeCollector, fee),
-                "Error while transferring listining fee"
-            );
 
             listingKey[keyId] = nextListingId;
             nextListingId++;
@@ -121,14 +136,27 @@ contract TokenMarketPlace is Ownable, ReentrancyGuard {
                 "this token is not active:  please reactivate it"
             );
 
-            listings[listingId].amount += _amount - fee;
-            listings[listingId].pricePerToken = _pricePerToken;
-
-            require(
-                token.transferFrom(msg.sender, feeCollector, fee),
-                "Error while transferring listining fee"
-            );
+            listings[listingId].amount += _amount;
+            listings[listingId].pricePerToken = _pricePerTokenInEth * 1 ether;
         }
+
+        chargeFee(_amount, _pricePerTokenInEth);
+    }
+
+    function purchaseToken(uint256 _listingId, uint256 _amount)
+        external
+        nonReentrant
+    {
+        require(_amount > 0, "amount must be greater than zero");
+        require(msg.sender != address(0), "_token address must be valid");
+
+        Listing storage listing = listings[_listingId];
+
+        require(listing.amount >= _amount, "_token amount not enough");
+        require(listing.active, "this token is not active at the moment");
+
+        // uint256 totalprice = _amount * listing.pricePerToken;
+        // uint256 =
     }
 
     function tokenBalanceByAddress(address _tokenAddress, address _account)
@@ -166,4 +194,6 @@ contract TokenMarketPlace is Ownable, ReentrancyGuard {
 
         listings[listingId].active = true;
     }
+
+    receive() external payable {}
 }
