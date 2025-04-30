@@ -1,0 +1,128 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
+
+contract TokenMarketPlace is Ownable, ReentrancyGuard {
+    uint256 public feePercent;
+    address public feeCollector;
+
+    struct Listing {
+        address seller;
+        address tokenAddress;
+        string tokenName;
+        uint256 amount;
+        uint256 pricePerToken;
+        bool active;
+    }
+
+    // foward mappings to give each token a uniqu identifier
+    mapping(uint256 => Listing) public listings;
+
+    // reverse mapping that is linking to the tokens uniqu number identifier to a hash for easy lookup
+    mapping(bytes32 => uint256) public listingKey;
+    uint256 nextListingId = 1;
+
+    event TokenListed(
+        uint256 indexed listingId,
+        address seller,
+        address tokenAddress,
+        uint256 amount,
+        uint256 pricePerToken
+    );
+
+    // event Li()
+
+    constructor(uint256 _feePercentage, address _feeCollector)
+        Ownable(msg.sender)
+    {
+        require(_feePercentage <= 1000, "Fee must not exceed 10%");
+        require(_feeCollector != address(0), "Invalid fee recipient address");
+
+        feePercent = _feePercentage;
+        feeCollector = _feeCollector;
+    }
+
+    function _generatekeyId(address token, address seller)
+        internal
+        pure
+        returns (bytes32)
+    {
+        return keccak256(abi.encodePacked(token, seller));
+    }
+
+    function chekApproveAllowance(address _tokenAddress, address user)
+        internal
+        view
+        returns (uint256)
+    {
+        return IERC20(_tokenAddress).allowance(user, address(this));
+    }
+
+    function creatListing(
+        address _tokenAddress,
+        uint256 _amount,
+        uint256 _pricePerToken
+    ) external nonReentrant {
+        // IERC20 token = IERC20(_tokenAddress);
+        // require(_tokenAddress != address(0), "Invalid token");
+        // require(_amount > 0, "Token amount can not be zero");
+        // require(_pricePerToken > 0, "Token price can not be zero");
+
+        // require(
+        //     chekApproveAllowance(_tokenAddress, msg.sender) > 0,
+        //     "You must approve this contract to use your tokens"
+        // );
+
+        // require(
+        //     chekApproveAllowance(_tokenAddress, msg.sender) >= _amount,
+        //     "Insufficient tokens"
+        // );
+
+        // require(
+        //     token.transferFrom(msg.sender, address(this), _amount),
+        //     "Unable to transfer tokens"
+        // );
+
+        bytes32 keyId = _generatekeyId(_tokenAddress, msg.sender);
+
+        // if (listingKey[keyId] == 0) {
+        //     listings[nextListingId] = Listing({
+        //         seller: msg.sender,
+        //         tokenName: IERC20Metadata(_tokenAddress).name(),
+        //         tokenAddress: _tokenAddress,
+        //         amount: _amount,
+        //         pricePerToken: _pricePerToken,
+        //         active: true
+        //     });
+
+        //     listingKey[keyId] = nextListingId;
+        //     nextListingId++;
+        // } else {
+        //     uint256 listingId = listingKey[keyId];
+        //     // require(listings[listingId].active, "");
+
+        //     listings[listingId].amount += _amount;
+        //     listings[listingId].pricePerToken = _pricePerToken;
+        // }
+
+        listings[nextListingId] = Listing({
+            seller: msg.sender,
+            tokenName: IERC20Metadata(_tokenAddress).name(),
+            tokenAddress: _tokenAddress,
+            amount: _amount,
+            pricePerToken: _pricePerToken,
+            active: true
+        });
+
+        listingKey[keyId] = nextListingId;
+        nextListingId++;
+    }
+
+    //   function contractTokenBalance() external view returns (uint256) {
+    //     return token.balanceOf(address(this));
+    // }
+}

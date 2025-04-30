@@ -1,0 +1,211 @@
+{
+	"compiler": {
+		"version": "0.8.26+commit.8a97fa7a"
+	},
+	"language": "Solidity",
+	"output": {
+		"abi": [
+			{
+				"inputs": [],
+				"stateMutability": "nonpayable",
+				"type": "constructor"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "id",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "string",
+						"name": "name",
+						"type": "string"
+					},
+					{
+						"indexed": false,
+						"internalType": "string",
+						"name": "class",
+						"type": "string"
+					}
+				],
+				"name": "RegisteredStudent",
+				"type": "event"
+			},
+			{
+				"inputs": [],
+				"name": "getAllStudentRecord",
+				"outputs": [
+					{
+						"components": [
+							{
+								"internalType": "string",
+								"name": "name",
+								"type": "string"
+							},
+							{
+								"internalType": "uint256",
+								"name": "id",
+								"type": "uint256"
+							},
+							{
+								"internalType": "string",
+								"name": "class",
+								"type": "string"
+							},
+							{
+								"internalType": "bytes32",
+								"name": "hashClass",
+								"type": "bytes32"
+							}
+						],
+						"internalType": "struct SchoolRegister.Register[]",
+						"name": "",
+						"type": "tuple[]"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "string",
+						"name": "_class",
+						"type": "string"
+					}
+				],
+				"name": "getStudentByClass",
+				"outputs": [
+					{
+						"components": [
+							{
+								"internalType": "string",
+								"name": "name",
+								"type": "string"
+							},
+							{
+								"internalType": "uint256",
+								"name": "id",
+								"type": "uint256"
+							},
+							{
+								"internalType": "string",
+								"name": "class",
+								"type": "string"
+							},
+							{
+								"internalType": "bytes32",
+								"name": "hashClass",
+								"type": "bytes32"
+							}
+						],
+						"internalType": "struct SchoolRegister.Register[]",
+						"name": "",
+						"type": "tuple[]"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_id",
+						"type": "uint256"
+					}
+				],
+				"name": "getstudentRecordById",
+				"outputs": [
+					{
+						"components": [
+							{
+								"internalType": "string",
+								"name": "name",
+								"type": "string"
+							},
+							{
+								"internalType": "uint256",
+								"name": "id",
+								"type": "uint256"
+							},
+							{
+								"internalType": "string",
+								"name": "class",
+								"type": "string"
+							},
+							{
+								"internalType": "bytes32",
+								"name": "hashClass",
+								"type": "bytes32"
+							}
+						],
+						"internalType": "struct SchoolRegister.Register",
+						"name": "",
+						"type": "tuple"
+					}
+				],
+				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "string",
+						"name": "_name",
+						"type": "string"
+					},
+					{
+						"internalType": "string",
+						"name": "_class",
+						"type": "string"
+					}
+				],
+				"name": "registerStudent",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
+			}
+		],
+		"devdoc": {
+			"kind": "dev",
+			"methods": {},
+			"version": 1
+		},
+		"userdoc": {
+			"kind": "user",
+			"methods": {},
+			"version": 1
+		}
+	},
+	"settings": {
+		"compilationTarget": {
+			"school-registery/register.sol": "SchoolRegister"
+		},
+		"evmVersion": "cancun",
+		"libraries": {},
+		"metadata": {
+			"bytecodeHash": "ipfs"
+		},
+		"optimizer": {
+			"enabled": false,
+			"runs": 200
+		},
+		"remappings": []
+	},
+	"sources": {
+		"school-registery/register.sol": {
+			"keccak256": "0x698f2ad2a1df843974973a045247c349ced2cf88e24959a8e0ff830bd1a817d0",
+			"license": "MIT",
+			"urls": [
+				"bzz-raw://90b5bbe532fa4373d7248c86c48a22e746ed89a6dc20dfe21d408ecdfb457024",
+				"dweb:/ipfs/QmUxKmX6Zg1V5PBydTLbgLviwAyiJJjTfLxBj1y2XD3pNW"
+			]
+		}
+	},
+	"version": 1
+}
