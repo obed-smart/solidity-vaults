@@ -89,15 +89,14 @@ contract TokenMarketPlace is Ownable, ReentrancyGuard {
 
         // declare a token instance
         IERC20 token = IERC20(_tokenAddress);
+        uint256 fee = (feePercent * _amount) / 100;
 
         require(
-            token.transferFrom(msg.sender, address(this), _amount),
+            token.transferFrom(msg.sender, address(this), _amount - fee),
             "Error while transferring tokens"
         );
 
         bytes32 keyId = _generatekeyId(_tokenAddress, msg.sender);
-
-        uint256 fee = (feePercent * _amount) / 100;
 
         if (listingKey[keyId] == 0) {
             listings[nextListingId] = Listing({
@@ -117,7 +116,10 @@ contract TokenMarketPlace is Ownable, ReentrancyGuard {
             nextListingId++;
         } else {
             uint256 listingId = listingKey[keyId];
-            require(listings[listingId].active, "this token is not active");
+            require(
+                listings[listingId].active,
+                "this token is not active:  please reactivate it"
+            );
 
             listings[listingId].amount += _amount - fee;
             listings[listingId].pricePerToken = _pricePerToken;
@@ -135,5 +137,33 @@ contract TokenMarketPlace is Ownable, ReentrancyGuard {
         returns (uint256)
     {
         return IERC20(_tokenAddress).balanceOf(_account);
+    }
+
+    function cancelListing(address _tokenAddress) external {
+        bytes32 keyId = _generatekeyId(_tokenAddress, msg.sender);
+        uint256 listingId = listingKey[keyId];
+
+        require(
+            listings[listingId].seller == msg.sender,
+            "only the owner can cancel"
+        );
+
+        require(listings[listingId].active, "this token is not active");
+
+        listings[listingId].active = false;
+    }
+
+    function reactivateListing(address _tokenAddress) external {
+        bytes32 keyId = _generatekeyId(_tokenAddress, msg.sender);
+        uint256 listingId = listingKey[keyId];
+
+        require(
+            listings[listingId].seller == msg.sender,
+            "only the owner can cancel"
+        );
+
+        require(!listings[listingId].active, "this token is already active.");
+
+        listings[listingId].active = true;
     }
 }

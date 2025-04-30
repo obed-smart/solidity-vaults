@@ -74,6 +74,37 @@
 					{
 						"indexed": false,
 						"internalType": "address",
+						"name": "_tokenAddress",
+						"type": "address"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "amountUpdated",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "uint256",
+						"name": "_newTokenPrice",
+						"type": "uint256"
+					}
+				],
+				"name": "TokenAmountUpdated",
+				"type": "event"
+			},
+			{
+				"anonymous": false,
+				"inputs": [
+					{
+						"indexed": true,
+						"internalType": "uint256",
+						"name": "listingId",
+						"type": "uint256"
+					},
+					{
+						"indexed": false,
+						"internalType": "address",
 						"name": "seller",
 						"type": "address"
 					},
@@ -121,6 +152,19 @@
 					}
 				],
 				"stateMutability": "pure",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_tokenAddress",
+						"type": "address"
+					}
+				],
+				"name": "cancelListing",
+				"outputs": [],
+				"stateMutability": "nonpayable",
 				"type": "function"
 			},
 			{
@@ -246,6 +290,19 @@
 					}
 				],
 				"stateMutability": "view",
+				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "address",
+						"name": "_tokenAddress",
+						"type": "address"
+					}
+				],
+				"name": "reactivateListing",
+				"outputs": [],
+				"stateMutability": "nonpayable",
 				"type": "function"
 			},
 			{
@@ -383,11 +440,11 @@
 			]
 		},
 		"MarketPlace/sells.sol": {
-			"keccak256": "0x6a8daf8e18df2cbe4e09f98f68c1b872c3c2902627f6485f16fddb8b602a0ef3",
+			"keccak256": "0x46867d48f07a257c294ebc40be696fb369d7dcb015b38257fabe08158534b52d",
 			"license": "MIT",
 			"urls": [
-				"bzz-raw://3f1cd3b72fc663f31edb54b3f2a091da4fc64663af442f2a64ca532126938125",
-				"dweb:/ipfs/QmSXg6o56TzcSt8DLBZ1RDd8MHwdtt5Niym18vo2EVcr3p"
+				"bzz-raw://1a96128a62763f15278241764173a60d0a8e368a85b787db0283467b74082a43",
+				"dweb:/ipfs/QmRPBe9SAdyspVsBGYikSqabde9qqwUtwUhp9J1aixjMzm"
 			]
 		}
 	},
