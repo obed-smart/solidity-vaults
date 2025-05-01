@@ -24,7 +24,7 @@ contract TokenMarketPlace is Ownable, ReentrancyGuard {
 
     // reverse mapping that is linking to the tokens uniqu number identifier to a hash for easy lookup
     mapping(bytes32 => uint256) public listingKey;
-    mapping(address => address) sellerAddress;
+    // mapping(address => address) sellerAddress;
     uint256 nextListingId = 1;
 
     event TokenListed(
@@ -68,32 +68,15 @@ contract TokenMarketPlace is Ownable, ReentrancyGuard {
         return IERC20(_tokenAddress).allowance(user, address(this));
     }
 
-    // calculate an charge fee for listing token
-    function chargeFee(uint256 _amount, uint256 _pricePerTokenInEth) internal {
-        uint256 fee = (feePercent * (_amount * _pricePerTokenInEth)) /
-            100;
-
-        require(msg.value >= fee, "Insufficient ETH for fee");
-
-        // send the fee to the fee collector
-        (bool sent, ) = feeCollector.call{value: fee}("");
-        require(sent, "Error while sending listining fee");
-
-        // check if the sent Eth is greater han the fees
-        if (msg.value > fee) {
-            // send back the extral fees to the sender
-            payable(msg.sender).transfer(msg.value - fee);
-        }
-    }
-
+   
     function creatListing(
         address _tokenAddress,
         uint256 _amount,
-        uint256 _pricePerTokenInEth
-    ) external nonReentrant payable {
+        uint256 _pricePerToken
+    ) external nonReentrant {
         require(_tokenAddress != address(0), "Invalid token");
         require(_amount > 0, "Token amount can not be zero");
-        require(_pricePerTokenInEth > 0, "Token price can not be zero");
+        require(_pricePerToken > 0, "Token price can not be zero");
 
         require(
             chekApproveAllowance(_tokenAddress, msg.sender) > 0,
@@ -114,7 +97,6 @@ contract TokenMarketPlace is Ownable, ReentrancyGuard {
             "Error while transferring tokens"
         );
 
-        // create a hash key for the token
         bytes32 keyId = _generatekeyId(_tokenAddress, msg.sender);
 
         if (listingKey[keyId] == 0) {
@@ -123,7 +105,7 @@ contract TokenMarketPlace is Ownable, ReentrancyGuard {
                 tokenName: IERC20Metadata(_tokenAddress).name(),
                 tokenAddress: _tokenAddress,
                 amount: _amount,
-                pricePerToken: _pricePerTokenInEth * 1 ether,
+                pricePerToken: _pricePerToken,
                 active: true
             });
 
@@ -131,20 +113,16 @@ contract TokenMarketPlace is Ownable, ReentrancyGuard {
             nextListingId++;
         } else {
             uint256 listingId = listingKey[keyId];
-            require(
-                listings[listingId].active,
-                "this token is not active:  please reactivate it"
-            );
+            require(listings[listingId].active, "this token is not active");
 
             listings[listingId].amount += _amount;
-            listings[listingId].pricePerToken = _pricePerTokenInEth * 1 ether;
+            listings[listingId].pricePerToken = _pricePerToken;
         }
-
-        chargeFee(_amount, _pricePerTokenInEth);
     }
 
     function purchaseToken(uint256 _listingId, uint256 _amount)
         external
+        payable
         nonReentrant
     {
         require(_amount > 0, "amount must be greater than zero");
@@ -155,8 +133,36 @@ contract TokenMarketPlace is Ownable, ReentrancyGuard {
         require(listing.amount >= _amount, "_token amount not enough");
         require(listing.active, "this token is not active at the moment");
 
-        // uint256 totalprice = _amount * listing.pricePerToken;
-        // uint256 =
+        uint256 totalpriceInEth = _amount * listing.pricePerToken;
+        uint256 fee = (feePercent * totalpriceInEth) / 100;
+        uint256 totalprice = totalpriceInEth + fee;
+
+        require(msg.value >= totalprice, "insufficient ETH  sent");
+
+        (bool feesuccess, ) = payable(feeCollector).call{value: fee}("");
+        require(feesuccess, "Error while sending Eth to the feecollector");
+
+        (bool success, ) = payable(listing.seller).call{value: totalpriceInEth}(
+            ""
+        );
+        require(success, "Error while sending Eth to the seller");
+
+        // Refund any excess ETH sent
+        if (msg.value > totalprice) {
+            payable(msg.sender).transfer(msg.value - totalprice);
+        }
+
+        if (_amount == listing.amount) {
+            listing.active = false;
+        } else {
+            listing.amount -= _amount;
+        }
+
+        // transfer the token to the user
+
+        IERC20 token = IERC20(listing.tokenAddress);
+        // transfer the token to the user
+        require(token.transfer(msg.sender, _amount), "Transaction failed");
     }
 
     function tokenBalanceByAddress(address _tokenAddress, address _account)
