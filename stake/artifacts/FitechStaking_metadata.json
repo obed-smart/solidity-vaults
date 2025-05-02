@@ -78,6 +78,33 @@
 				],
 				"stateMutability": "view",
 				"type": "function"
+			},
+			{
+				"inputs": [
+					{
+						"internalType": "uint256",
+						"name": "_durationInDay",
+						"type": "uint256"
+					}
+				],
+				"name": "stake",
+				"outputs": [],
+				"stateMutability": "payable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "updatStaking",
+				"outputs": [],
+				"stateMutability": "payable",
+				"type": "function"
+			},
+			{
+				"inputs": [],
+				"name": "withdraw",
+				"outputs": [],
+				"stateMutability": "nonpayable",
+				"type": "function"
 			}
 		],
 		"devdoc": {
@@ -116,11 +143,11 @@
 			]
 		},
 		"stake/stake.sol": {
-			"keccak256": "0xd3b0f8396bf39960153d65ce7244d7aa6595d5a713b11a0751d2596d03fcaf27",
+			"keccak256": "0x3b090c2ed13253a19923f93fe6e56855b43fa7f4945df35bc4284a197787f200",
 			"license": "UNLICENSED",
 			"urls": [
-				"bzz-raw://a307733111b2b3b0a1543bcb9dd2b4d9fa052597bb00c816fea8d7458cca49bf",
-				"dweb:/ipfs/QmfLNo3FcZEF7jhGnwWuvXhGKyMEsdBAa75GVHoLSFmRvf"
+				"bzz-raw://b284c94bfc7d9763f91bd33631df708e809d82740f224c464023b39ab0b1db38",
+				"dweb:/ipfs/Qme3vxC8s8maD5DTWuaGaFsSE7TitRbpKRht6tXLmTRuTT"
 			]
 		}
 	},
